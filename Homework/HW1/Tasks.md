@@ -75,7 +75,8 @@ b
 
 Constraints
 
-![Formula1](images/Formula2.png)
+![Formula2](images/Formula2.png)
+
 **Output Format**
 
 На първия и единствен ред на стандартния изход трябва да изведете търсеният първи липсващ номер на екип.
@@ -122,7 +123,7 @@ Constraints
 
 **Constraints**
 
-![Formula1](images/Formula3.png)
+![Formula3](images/Formula3.png)
 
 **Output Format**
 

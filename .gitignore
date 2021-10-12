@@ -3,4 +3,3 @@ cmake-build-debug
 CmakeLists.txt
 *.exe
 .vscode
-images
