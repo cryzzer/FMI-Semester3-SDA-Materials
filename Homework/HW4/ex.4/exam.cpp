@@ -93,6 +93,15 @@ class DoublyLinkedList {
         middle = newMiddle;
         tail = newTail;
     }
+
+    void printNodes(){
+        std::cout << nodesCount << '\n';
+        DoublyLinkedListNode* movingCursor = head;
+        for(int i = 0; i < nodesCount; i++){
+            std::cout << movingCursor->data << ' ';
+            movingCursor = movingCursor->next;
+        }
+    }
 };
 
 
