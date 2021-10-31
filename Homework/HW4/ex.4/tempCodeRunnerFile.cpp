@@ -56,9 +56,6 @@ class DoublyLinkedList {
   }
 
   void deleteLastElement() {
-    if (nodesCount == 0) {
-      return;
-    }
     if (head == tail) {
       head = nullptr;
       tail = nullptr;
@@ -79,9 +76,6 @@ class DoublyLinkedList {
   }
 
   void moveListFromMidToEnd() {
-    if (nodesCount < 2) {
-      return;
-    }
     if (head->next == tail) {
       head->next = nullptr;
       tail->previous = nullptr;
