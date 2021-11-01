@@ -23,6 +23,8 @@ class DoublyLinkedList {
       : head(nullptr), middle(nullptr), tail(nullptr), nodesCount(0) {}
 
   void push_back(int data) {
+    // If there are no nodes, create one and make 'head' and 'tail' to point to
+    // the first element
     if (!head) {
       DoublyLinkedListNode* firstNode = new DoublyLinkedListNode(data);
       head = firstNode;
@@ -32,6 +34,9 @@ class DoublyLinkedList {
       return;
     }
 
+    // If there is only one element create a second one and make tail to point
+    // him, make middle to point head and connect the two elements with next and
+    // previous
     if (head == tail) {
       DoublyLinkedListNode* secondNode = new DoublyLinkedListNode(data);
       head->next = secondNode;
@@ -43,6 +48,9 @@ class DoublyLinkedList {
       return;
     }
 
+    // Create a new element and make the next element of tail to point the
+    // newest one, and the previous elment of the last to point to tail, then
+    // move tail to the last element
     DoublyLinkedListNode* newNode = new DoublyLinkedListNode(data);
     tail->next = newNode;
     newNode->previous = tail;
@@ -50,15 +58,18 @@ class DoublyLinkedList {
 
     nodesCount++;
 
+    // After every two pushes move middle 1 position forward
     if (nodesCount % 2 == 0) {
       middle = middle->next;
     }
   }
 
-  void deleteLastElement() {
+  void pop_back() {
     if (nodesCount == 0) {
       return;
     }
+
+    // If there is only one element, make head and tail to point to nullptr
     if (head == tail) {
       head = nullptr;
       tail = nullptr;
@@ -66,6 +77,8 @@ class DoublyLinkedList {
       return;
     }
 
+    // Create a new temporary tail to point to the new tail, then disconnect all
+    // connections with the last element and make tail point to the new tail
     DoublyLinkedListNode* tempTail = tail->previous;
     tempTail->next = nullptr;
     tail->previous = nullptr;
@@ -73,6 +86,7 @@ class DoublyLinkedList {
 
     nodesCount--;
 
+    // After every two pops, move middle one position backwards
     if (nodesCount % 2 == 1) {
       middle = middle->previous;
     }
@@ -82,6 +96,7 @@ class DoublyLinkedList {
     if (nodesCount < 2) {
       return;
     }
+    // If there are two elements swap them
     if (head->next == tail) {
       head->next = nullptr;
       tail->previous = nullptr;
@@ -97,9 +112,13 @@ class DoublyLinkedList {
       return;
     }
 
+    // Create new head middle and tail
     DoublyLinkedListNode* newTail = middle;
     DoublyLinkedListNode* newHead = middle->next;
     DoublyLinkedListNode* newMiddle;
+
+    // If there are even number of elements new middle will be where tail points
+    // if not, new middle will point at the element before tail
     if (nodesCount % 2 == 0) {
       newMiddle = tail;
     } else {
@@ -117,6 +136,7 @@ class DoublyLinkedList {
     tail = newTail;
   }
 
+  //Print all elements
   void printNodes() {
     std::cout << nodesCount << '\n';
     DoublyLinkedListNode* movingCursor = head;
@@ -143,7 +163,7 @@ int main() {
       continue;
     }
     if (command == "gun") {
-      linkedList->deleteLastElement();
+      linkedList->pop_back();
       continue;
     }
     if (command == "milen") {
