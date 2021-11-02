@@ -1,6 +1,6 @@
 #include <iostream>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 class DoublyLinkedListNode {
  public:
@@ -18,23 +18,30 @@ class DoublyLinkedList {
   DoublyLinkedListNode* tail;
 
  public:
+  // Vector to hold the addresses of all Nodes(Balls)
   std::vector<DoublyLinkedListNode*> numberPtrs;
 
   DoublyLinkedList(int numberCount) : head(nullptr), tail(nullptr) {
-    numberPtrs = std::vector<DoublyLinkedListNode*>(numberCount,nullptr);
+    // Fill the vector with null pointers and make it as large as the count of
+    // all numbers
+    numberPtrs = std::vector<DoublyLinkedListNode*>(numberCount, nullptr);
   }
 
   void push_backNode(int color, int idNumber) {
+    // If there are no elements added, add this one to be the first one
     if (!head) {
       DoublyLinkedListNode* firstNode =
           new DoublyLinkedListNode(color, idNumber);
       head = firstNode;
       tail = firstNode;
 
+      // Add the address of the element to the vector
       numberPtrs[idNumber] = firstNode;
       return;
     }
 
+    // If these is only 1 element added, add this one to be the second one and
+    // connect all nodes
     if (head == tail) {
       DoublyLinkedListNode* secondNode =
           new DoublyLinkedListNode(color, idNumber);
@@ -42,24 +49,32 @@ class DoublyLinkedList {
       secondNode->previous = head;
       tail = secondNode;
 
+      // Add the address of the element to the vector
       numberPtrs[idNumber] = secondNode;
       return;
     }
 
+    // Add the next node and connect them, then move tail to point to the last
+    // added node
     DoublyLinkedListNode* newNode = new DoublyLinkedListNode(color, idNumber);
     tail->next = newNode;
     newNode->previous = tail;
     tail = newNode;
 
+    // Add the address of the element to the vector
     numberPtrs[idNumber] = newNode;
   }
 
   void insertNote_atPos(int insertionPos, int color, int idNumber) {
     DoublyLinkedListNode* newNode = new DoublyLinkedListNode(color, idNumber);
+    // push_back the address of this node into the vector
     numberPtrs.push_back(newNode);
 
+    // Take the address of the element that needs to be inserted after
     DoublyLinkedListNode* insertionPtr = numberPtrs[insertionPos];
 
+    // If the new element needs to be inserted after tail, insert it after tail,
+    // connect them and move tail to the new element
     if (insertionPtr == tail) {
       insertionPtr->next = newNode;
       newNode->previous = insertionPtr;
@@ -67,6 +82,8 @@ class DoublyLinkedList {
       return;
     }
 
+    // Insert the new element between the pointer of 'insertionPtr' and its next
+    // element(insertionPtr->next) and connect all of them
     DoublyLinkedListNode* nextElement = insertionPtr->next;
     nextElement->previous = newNode;
     newNode->next = nextElement;
@@ -76,6 +93,7 @@ class DoublyLinkedList {
   }
 
   bool isEmptyList() {
+    // If head and tail are nullpointers, the list is empty and return true
     if (head == nullptr && tail == nullptr) {
       return true;
     }
@@ -83,12 +101,18 @@ class DoublyLinkedList {
   }
 
   void erase(DoublyLinkedListNode* start, DoublyLinkedListNode* end) {
+    // If the starting position and the ending position of the elements that
+    // need to be deleted are head and tail, just kame head and tail point null
+    // pointer
     if (start == head && end == tail) {
       head = nullptr;
       tail = nullptr;
       return;
     }
 
+    // If only the start position is head move head to the next position of
+    // 'end' and disconnect all connections between the elements that have to be
+    // deleted
     if (start == head) {
       head = end->next;
       head->previous = nullptr;
@@ -96,6 +120,9 @@ class DoublyLinkedList {
       return;
     }
 
+    // If the end position matches with tail, make the new tail to point to the
+    // previous element of 'start' and disconnect all connections between the
+    // elements that have to be deleted
     if (end == tail) {
       tail = start->previous;
       tail->next = nullptr;
@@ -103,6 +130,9 @@ class DoublyLinkedList {
       return;
     }
 
+    // Connect the previous element of 'start' with the next element of 'end'
+    // and disconnect all connections between the elements that have to be
+    // deleted
     DoublyLinkedListNode* previousElement = start->previous;
     DoublyLinkedListNode* nextElement = end->next;
 
