@@ -144,6 +144,7 @@ class DoublyLinkedList {
   }
 
   void printBalls() {
+    // Print all elements
     DoublyLinkedListNode* cursor = head;
     while (cursor) {
       std::cout << cursor->color << ' ';
@@ -154,25 +155,40 @@ class DoublyLinkedList {
 
 std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*> addressOfDestroyedBalls(
     DoublyLinkedListNode* hittingBall, int& destroyedBallsCount) {
+  // The destroyed balls count is always one because we include the the ball
+  // that we shoot
   int destroyedBallCounter = 1;
+
+  // Creating two indexes that will move to the left and to the right of the
+  // hitting ball
   DoublyLinkedListNode* rightMovingIndex = hittingBall;
   DoublyLinkedListNode* leftMovingIndex = hittingBall;
 
+  // While the next pointer is valid pointer and both colors match continue to
+  // the right
   while (rightMovingIndex->next &&
          rightMovingIndex->color == rightMovingIndex->next->color) {
     rightMovingIndex = rightMovingIndex->next;
     destroyedBallCounter++;
   }
+  // While the next pointer is valid pointer and both colors match continue to
+  // the left
   while (leftMovingIndex->previous &&
          leftMovingIndex->color == leftMovingIndex->previous->color) {
     leftMovingIndex = leftMovingIndex->previous;
     destroyedBallCounter++;
   }
 
+  // If there are less than 3 balls destroyed, return null pointers so that no
+  // elements will be deleted
   if (destroyedBallCounter < 3) {
     return std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*>(nullptr,
                                                                    nullptr);
-  } else {
+  }
+  // If there are at least 3 balls destroyed, return the pointers to these
+  // elements that that equals to the start and the end of the elements that
+  // need to be deleted
+  else {
     destroyedBallsCount = destroyedBallCounter;
     return std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*>(
         leftMovingIndex, rightMovingIndex);
@@ -181,6 +197,7 @@ std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*> addressOfDestroyedBalls(
 
 bool ifSameBallsCollision(DoublyLinkedListNode* left,
                           DoublyLinkedListNode* right) {
+  // If both elements have the same colors, return true
   if (left->color == right->color) {
     return true;
   }
@@ -188,11 +205,13 @@ bool ifSameBallsCollision(DoublyLinkedListNode* left,
 }
 
 int main() {
+  // Using string stream to write all outputs into one string
   std::stringstream ss;
 
   int ballsCount;
   std::cin >> ballsCount;
 
+  // Filling the list with the first elements
   DoublyLinkedList* list = new DoublyLinkedList(ballsCount);
   int color;
   for (int i = 0; i < ballsCount; i++) {
@@ -204,39 +223,66 @@ int main() {
   std::cin >> shotRequests;
 
   int shootingPos;
+
+  // This integer will determine the IDs of all new balls that will be shot
   int ballIdNum = ballsCount;
   int destroyedBallsCount = 0;
   for (int i = 0; i < shotRequests; i++) {
     std::cin >> shootingPos >> color;
-    destroyedBallsCount = 0;
+    destroyedBallsCount = 0;  // set the balls that are destroyed to 0
 
+    // If the list is not empty continue the with shooting
     if (!list->isEmptyList()) {
+      // Shooting a ball at 'shootingPos' position and in the same time give the
+      // color to the new ball and give it Id as well
       list->insertNote_atPos(shootingPos, color, ballIdNum);
 
+      // Take the addresses of the start and the end where the balls have to be
+      // deleted
       std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*>
           ballsToRemovePtrs = addressOfDestroyedBalls(
               list->numberPtrs[ballIdNum], destroyedBallsCount);
 
-      ballIdNum++;
+      ballIdNum++;  // Increase the id of next ball
+
+      // If there are potentially less than 3 destroyed balls, cout that there
+      // are 0 destroyed balls this turn
       if (destroyedBallsCount < 3) {
         ss << 0 << '\n';
       }
-      //
+      // If there are potentially more than or exactly 3 destroyed balls,
+      // continue with deleting
       else {
+        // If there are potentially more than or exactly 3 destroyed balls, get
+        // the indexes of the element before start and after end to check for
+        // collision
         DoublyLinkedListNode* collisionPtrLeft =
             ballsToRemovePtrs.first->previous;
         DoublyLinkedListNode* collisionPtrRight =
             ballsToRemovePtrs.second->next;
+
+        // Delete those elements
         list->erase(ballsToRemovePtrs.first, ballsToRemovePtrs.second);
 
+        // Check if these pointers are valid
         if (collisionPtrLeft && collisionPtrRight) {
           int collisionDestroyedBalls = 0;
+
+          // Try at least one to check if the two balls that will collide are
+          // with the same color
           do {
             collisionDestroyedBalls = 0;
 
+            // Checking for same color here
             if (ifSameBallsCollision(collisionPtrLeft, collisionPtrRight)) {
+              // If they have the same color, pick one of the two pointers and
+              // try to find how many potentially destroyed balls there will be,
+              // and find their addresses
               ballsToRemovePtrs = addressOfDestroyedBalls(
                   collisionPtrLeft, collisionDestroyedBalls);
+
+              // If there are 3 or more destroyed balls delete them, and and get
+              // the addresses before start and after end, then delete them
               if (collisionDestroyedBalls >= 3) {
                 destroyedBallsCount += collisionDestroyedBalls;
 
@@ -245,29 +291,35 @@ int main() {
                 list->erase(ballsToRemovePtrs.first, ballsToRemovePtrs.second);
               }
             }
-            //
+            // If the two colors do not match, break the loop
             else {
               break;
             }
 
+            // Do this loop while there are 3 or more destroyed balls and the
+            // two pointers are valid
           } while (collisionDestroyedBalls >= 3 && collisionPtrLeft &&
                    collisionPtrRight);
         }
+        // Write the number of destroyed balls this turn in this string
         ss << destroyedBallsCount << '\n';
       }
     }
-    //
+    // If the list is empty write game over in the string
     else {
       ss << "Game Over\n";
     }
   }
 
+  // After the requests have finished print all messages regarding the destroyed
+  // balls and if there are no balls left, game over
   std::cout << ss.str();
 
+  // If there are no balls in the list, cout -1
   if (list->isEmptyList()) {
     std::cout << -1 << '\n';
   }
-  //
+  // else, print all balls in the list
   else {
     list->printBalls();
   }
