@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 class DoublyLinkedListNode {
  public:
@@ -20,7 +21,7 @@ class DoublyLinkedList {
   std::vector<DoublyLinkedListNode*> numberPtrs;
 
   DoublyLinkedList(int numberCount) : head(nullptr), tail(nullptr) {
-    numberPtrs = std::vector<DoublyLinkedListNode*>(numberCount, nullptr);
+    numberPtrs = std::vector<DoublyLinkedListNode*>(numberCount,nullptr);
   }
 
   void push_backNode(int color, int idNumber) {
@@ -80,10 +81,49 @@ class DoublyLinkedList {
     }
     return false;
   }
+
+  void erase(DoublyLinkedListNode* start, DoublyLinkedListNode* end) {
+    if (start == head && end == tail) {
+      head = nullptr;
+      tail = nullptr;
+      return;
+    }
+
+    if (start == head) {
+      head = end->next;
+      head->previous = nullptr;
+      end->next = nullptr;
+      return;
+    }
+
+    if (end == tail) {
+      tail = start->previous;
+      tail->next = nullptr;
+      start->previous = nullptr;
+      return;
+    }
+
+    DoublyLinkedListNode* previousElement = start->previous;
+    DoublyLinkedListNode* nextElement = end->next;
+
+    previousElement->next = nextElement;
+    nextElement->previous = previousElement;
+
+    start->previous = nullptr;
+    end->next = nullptr;
+  }
+
+  void printBalls() {
+    DoublyLinkedListNode* cursor = head;
+    while (cursor) {
+      std::cout << cursor->color << ' ';
+      cursor = cursor->next;
+    }
+  }
 };
 
 std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*> addressOfDestroyedBalls(
-    DoublyLinkedListNode* hittingBall) {
+    DoublyLinkedListNode* hittingBall, int& destroyedBallsCount) {
   int destroyedBallCounter = 1;
   DoublyLinkedListNode* rightMovingIndex = hittingBall;
   DoublyLinkedListNode* leftMovingIndex = hittingBall;
@@ -103,12 +143,23 @@ std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*> addressOfDestroyedBalls(
     return std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*>(nullptr,
                                                                    nullptr);
   } else {
+    destroyedBallsCount = destroyedBallCounter;
     return std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*>(
         leftMovingIndex, rightMovingIndex);
   }
 }
 
+bool ifSameBallsCollision(DoublyLinkedListNode* left,
+                          DoublyLinkedListNode* right) {
+  if (left->color == right->color) {
+    return true;
+  }
+  return false;
+}
+
 int main() {
+  std::stringstream ss;
+
   int ballsCount;
   std::cin >> ballsCount;
 
@@ -124,17 +175,72 @@ int main() {
 
   int shootingPos;
   int ballIdNum = ballsCount;
+  int destroyedBallsCount = 0;
   for (int i = 0; i < shotRequests; i++) {
     std::cin >> shootingPos >> color;
+    destroyedBallsCount = 0;
 
     if (!list->isEmptyList()) {
-      list->insertNote_atPos(shootingPos, color, ++ballIdNum);
-      std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*> ballsToRemove =
-          addressOfDestroyedBalls(list->numberPtrs[ballIdNum]);
-      
-      if(ballsToRemove.first && ballsToRemove.second){
-        
+      list->insertNote_atPos(shootingPos, color, ballIdNum);
+
+      std::pair<DoublyLinkedListNode*, DoublyLinkedListNode*>
+          ballsToRemovePtrs = addressOfDestroyedBalls(
+              list->numberPtrs[ballIdNum], destroyedBallsCount);
+
+      ballIdNum++;
+      if (destroyedBallsCount < 3) {
+        ss << 0 << '\n';
+      }
+      //
+      else {
+        DoublyLinkedListNode* collisionPtrLeft =
+            ballsToRemovePtrs.first->previous;
+        DoublyLinkedListNode* collisionPtrRight =
+            ballsToRemovePtrs.second->next;
+        list->erase(ballsToRemovePtrs.first, ballsToRemovePtrs.second);
+
+        if (collisionPtrLeft && collisionPtrRight) {
+          int collisionDestroyedBalls = 0;
+          do {
+            collisionDestroyedBalls = 0;
+
+            if (ifSameBallsCollision(collisionPtrLeft, collisionPtrRight)) {
+              ballsToRemovePtrs = addressOfDestroyedBalls(
+                  collisionPtrLeft, collisionDestroyedBalls);
+              if (collisionDestroyedBalls >= 3) {
+                destroyedBallsCount += collisionDestroyedBalls;
+
+                collisionPtrLeft = ballsToRemovePtrs.first->previous;
+                collisionPtrRight = ballsToRemovePtrs.second->next;
+                list->erase(ballsToRemovePtrs.first, ballsToRemovePtrs.second);
+              }
+            }
+            //
+            else {
+              break;
+            }
+
+          } while (collisionDestroyedBalls >= 3 && collisionPtrLeft &&
+                   collisionPtrRight);
+        }
+        ss << destroyedBallsCount << '\n';
       }
     }
+    //
+    else {
+      ss << "Game Over\n";
+    }
   }
+
+  std::cout << ss.str();
+
+  if (list->isEmptyList()) {
+    std::cout << -1 << '\n';
+  }
+  //
+  else {
+    list->printBalls();
+  }
+
+  return 0;
 }
