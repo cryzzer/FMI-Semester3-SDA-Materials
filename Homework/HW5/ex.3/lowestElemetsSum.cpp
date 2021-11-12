@@ -2,13 +2,14 @@
 #include <iostream>
 #include <vector>
 
-struct Node {
+class Node {
+ public:
   int value;
   int index;
   Node(int value, int index) : value(value), index(index) {}
 };
 
-int main(){
+int main() {
   unsigned int countOfElements;
   std::cin >> countOfElements;
 
@@ -25,24 +26,29 @@ int main(){
   long long int sumAllLowestElements = 0;
   std::deque<Node> subarray;
   for (int i = 0; i < countOfElements; i++) {
+    // If the element does not belong in the current subarray any longer, remove
+    // it form it
     if (!subarray.empty() && subarray.front().index <= i - subArraySize) {
-        subarray.pop_front();
+      subarray.pop_front();
     }
 
-    while(true){   //(!subarray.empty() && subarray.back().value >= elements[i])
-        if(subarray.empty()){
-            break;
-        }
-        if(subarray.back().value < elements[i]){
-            break;
-        }
-        subarray.pop_back();
+    // Keep the subarray in decreasing order, also remove all elements that are
+    // lower than the next element to be added
+    while (true) {
+      if (subarray.empty()) {
+        break;
+      }
+      if (subarray.back().value < elements[i]) {
+        break;
+      }
+      subarray.pop_back();
     }
 
-    subarray.push_back(Node(elements[i],i));
+    subarray.push_back(Node(elements[i], i));
 
-    if(i >= subArraySize - 1){
-        sumAllLowestElements += subarray.front().value;
+    // If the first element belongs in the subarray, add it to the sum
+    if (i >= subArraySize - 1) {
+      sumAllLowestElements += subarray.front().value;
     }
   }
 
