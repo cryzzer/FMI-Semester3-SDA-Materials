@@ -17,7 +17,9 @@ class List {
   Node* head;
   Node* tail;
 
+  // Vector that holds all the addresses of the nodes
   std::vector<Node*> numberPtrs;
+  // Vector that hols the addresses of nodes where there will be battle next day
   std::vector<Node*> battlePtrs;
 
   List(int numberCount) : head(nullptr), tail(nullptr) {
@@ -53,12 +55,16 @@ class List {
   }
 
   void erase(Node* start, Node* end) {
+    // Remove all pointers who will be deleted from 'numberPtrs' so they can't
+    // be accessed anymore when next battle happens
     Node* cursor = start;
     while (cursor != end) {
       numberPtrs[cursor->idNumber] = nullptr;
       cursor = cursor->next;
     }
     numberPtrs[end->idNumber] = nullptr;
+
+    // Rearraging pointers of removed and pointer after end and before start
     if (start == head && end == tail) {
       head = nullptr;
       tail = nullptr;
@@ -90,17 +96,22 @@ class List {
   }
 };
 
+// Doing a linear search for the first time to determine which players will
+// drop out and store in a vector the players that will battle the next day
 bool ifPlayersBattled(List* list) {
   bool someoneBattled = false;
 
   Node* currPtr = list->head;
   while (currPtr != nullptr) {
     if (currPtr->next && currPtr->hunger < currPtr->next->hunger) {
+      // The player on the left that battled
       Node* battled = currPtr;
       currPtr = currPtr->next;
 
       someoneBattled = true;
 
+      // If the next player has higher hunger than the current one continue to
+      // next one
       while (currPtr != nullptr) {
         if (!(currPtr->next) || currPtr->hunger >= currPtr->next->hunger) {
           break;
@@ -110,8 +121,11 @@ bool ifPlayersBattled(List* list) {
       }
       Node* endBattle = currPtr;
       currPtr = currPtr->next;
+      // Erasing all the player shat were eliminated
       list->erase(battled->next, endBattle);
 
+      // Add the player that battled today if he will battle the next day as
+      // well so we can get to him for a constant time
       if (battled->next && battled->hunger < battled->next->hunger) {
         list->battlePtrs.push_back(battled);
       }
@@ -125,17 +139,26 @@ bool ifPlayersBattled(List* list) {
   return someoneBattled;
 }
 
+// Delete all players that have lost and return a new vector with the pointers
+// of players that will battle the next day so they can be accessed for constant
+// time
 std::vector<Node*> futureBattles(List* list) {
   std::vector<Node*> futurePossibleBattles;
 
   Node* currPtr;
   for (auto& currentBattle : list->battlePtrs) {
     currPtr = currentBattle;
+
+    // Checking if all pointers that we will use are valid and if the player in
+    // the 'numberPtrs' vector has a valid pointer, which indicates if its has
+    // been already removed or not
     if (list->numberPtrs[currentBattle->idNumber] && currPtr->next &&
         currPtr->hunger < currPtr->next->hunger) {
       Node* battled = currPtr;
       currPtr = currPtr->next;
 
+      // If the next player has higher hunger than the current one continue to
+      // next one
       while (currPtr != nullptr) {
         if (!(currPtr->next) || currPtr->hunger >= currPtr->next->hunger) {
           break;
@@ -145,6 +168,8 @@ std::vector<Node*> futureBattles(List* list) {
       }
       list->erase(battled->next, currPtr);
 
+      // Add the player that battled today if he will battle the next day as
+      // well so we can get to him for a constant time
       if (battled->next && battled->hunger < battled->next->hunger) {
         futurePossibleBattles.push_back(battled);
       }
