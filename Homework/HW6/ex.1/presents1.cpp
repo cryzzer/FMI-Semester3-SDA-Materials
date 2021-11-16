@@ -8,6 +8,7 @@ struct Node {
 
   Node(int employee = 0) : employee(employee), countOfDescendants(0) {}
 
+  // Calculate how many descendants this root has
   void calculateDescentants() {
     countOfDescendants = descendants.size();
     for (auto& descendant : descendants) {
@@ -17,12 +18,13 @@ struct Node {
 };
 
 class GeneralTree {
- private:
+  private:
+  // Having vector to hold pointers to all Nodes for constant accessing
   std::vector<Node*> elementsPtrs;
 
- public:
+  public:
   GeneralTree(int peopleCount) {
-    elementsPtrs = std::vector<Node*>(peopleCount, nullptr);
+    elementsPtrs    = std::vector<Node*>(peopleCount, nullptr);
     elementsPtrs[0] = new Node(0);
   }
   void add(int employer, int employee) {
@@ -32,6 +34,7 @@ class GeneralTree {
   }
 
   void calculatePresents() {
+    // Calculate all descendants, starting from last to first
     for (int i = elementsPtrs.size() - 1; i >= 0; i--) {
       elementsPtrs[i]->calculateDescentants();
     }
