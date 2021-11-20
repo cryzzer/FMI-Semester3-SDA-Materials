@@ -27,6 +27,11 @@ class BinarySearchTree {
 
   std::queue<Node*> parentsToBeDescended;
 
+  // Since the x coordinates in the vector are by default 0, if there hasn't
+  // been written an existing node with x coordinate, write it.
+  // If there has been written a x coordinate, check its y coordinate and if
+  // its lower than current Node's y, replace it.
+  // Then continue to search throughout the tree in a preorder search
   void takeElementsPreorder(Node* root) {
     if (root == nullptr) {
       return;
@@ -37,7 +42,7 @@ class BinarySearchTree {
       if (negativeXCoords[xNodeCoords]->xCoords == 0) {
         negativeXCoords[xNodeCoords] = root;
       }
-      //
+
       else {
         if (negativeXCoords[xNodeCoords]->yCoords < root->yCoords) {
           negativeXCoords[xNodeCoords] = root;
@@ -69,6 +74,10 @@ class BinarySearchTree {
     negativeXCoords = std::vector<Node*>(elementsCount, new Node());
   }
 
+  // When adding new child to current root, if its value is '-1', it means that
+  // this child is not viable object(nullptr)
+  // Then use 'parentsToBeDescended' queue to know next where the next children
+  // will be assigned at
   void addDescendands(int left, int right) {
     if (parentsToBeDescended.empty()) {
       return;
@@ -90,6 +99,9 @@ class BinarySearchTree {
     }
   }
 
+  // When deciding which nodes can be seen from the (0,0) coordinates when
+  // looking down, the negative x coordinates need to be sorted so they begin
+  // from (for example from -10 to -1)
   void printTreeSpikes() {
     takeElementsPreorder(root);
 
